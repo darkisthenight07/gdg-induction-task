@@ -1,0 +1,9 @@
+gradio
+yfinance
+pandas
+numpy
+sentence-transformers
+langchain
+langchain-community
+chromadb
+regex
