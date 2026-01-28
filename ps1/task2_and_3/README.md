@@ -2,80 +2,12 @@
 
 > **GDG Induction Task - Problem Statement 1: Tasks 2 & 3**  
 > An intelligent, context-aware financial analysis system with RAG, multi-agent architecture, news integration, and real-time data streaming.
----
-
-## 🎯 Project Overview
-
-This project implements a sophisticated financial intelligence chatbot that combines cutting-edge AI techniques to deliver contextual, real-time market insights. The system goes beyond basic stock data retrieval by integrating news sentiment, query optimization, and automated dashboard updates.
----
-
-## ✨ Key Features
-
-### Task 2: Analytical Chatbot (RAG & Explanation) ✅
-
-- ✅ **Natural Language Interface**: Ask questions in plain English about any stock
-- ✅ **Intelligent Ticker Extraction**: Recognizes both symbols (AAPL) and company names (Apple)
-- ✅ **Multi-Agent Architecture**: 
-  - `ResearchAgent`: RAG-based contextual answers with query rephrasing
-  - `TrendAgent`: Technical analysis and momentum detection
-  - `NewsAgent`: Real-time financial news integration
-- ✅ **Advanced RAG Pipeline**:
-  - Query rephrasing with Gemini LLM
-  - Top-K retrieval (k=3) with reranking
-  - News + technical data fusion in vector store
-- ✅ **News Integration**: Live financial news via NewsAPI for context-aware answers
-- ✅ **Intent Classification**: Semantic understanding of user queries
-- ✅ **Vector Database**: ChromaDB with HuggingFace sentence transformers
-- ✅ **Technical Indicators**: SMA (20, 50), RSI calculation
-
-### Task 3: Real-Time Intelligence (Live Data Integration) ✅
-
-- ✅ **Auto-Refreshing Dashboard**: Prices update every 60 seconds automatically
-- ✅ **Live Data Streaming**: Real-time market data via yfinance API
-- ✅ **Historical + Live Integration**: Seamless data continuity
-- ✅ **Zero Manual Refresh**: Set-and-forget monitoring experience
-- ✅ **Interactive UI**: Gradio-powered responsive interface
 
 ---
 
 ## 🏗️ System Architecture
 
-### High-Level Design
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                       User Interface                            │
-│                  (Gradio Web App + Auto-Refresh)                │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-                             ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                       Orchestrator                              │
-│  • Query Routing         • Agent Coordination                   │
-│  • Ticker Management     • State Management                     │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-              ┌──────────────┼──────────────┐
-              ▼              ▼              ▼
-┌──────────────────┐ ┌──────────────┐ ┌─────────────────┐
-│  Intent Engine   │ │  Data Layer  │ │  Agent System   │
-│                  │ │              │ │                 │
-│ • Ticker Extract │ │ • Historical │ │ • Research      │
-│ • Intent Classify│ │ • Live Price │ │ • Trend         │
-│ • NLP Processing │ │ • Indicators │ │ • News          │
-└──────────────────┘ └──────────────┘ └────────┬────────┘
-                                               │
-                              ┌────────────────┴────────────┐
-                              ▼                             ▼
-                    ┌──────────────────┐        ┌──────────────────┐
-                    │   RAG System     │        │   News System    │
-                    │                  │        │                  │
-                    │ • Query Rephrase │        │ • NewsAPI Client │
-                    │ • Vector Search  │        │ • Article Fetch  │
-                    │ • Reranking      │        │ • Sentiment Prep │
-                    │ • ChromaDB       │        │                  │
-                    └──────────────────┘        └──────────────────┘
-```
 
 ### Data Flow: Query Processing
 
@@ -443,10 +375,3 @@ Store in ChromaDB with Metadata
 | Performance questions | "How is Apple doing?" | General (5-day change) |
 | Company names | "What's happening with Google?" | Auto-converts to GOOGL |
 | Ticker symbols | "Analyze NVDA" | Direct ticker usage |
-
----
-
-
-
-
-
