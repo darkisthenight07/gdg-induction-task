@@ -1,6 +1,7 @@
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_core.documents import Document
+from core.news import fetch_news
 
 def build_vectorstore(ticker, df):
     docs = []
@@ -15,6 +16,12 @@ def build_vectorstore(ticker, df):
     """
 
     docs.append(Document(page_content=summary, metadata={"type": "summary"}))
+
+    company_map = {"AAPL": "Apple", "MSFT": "Microsoft", "GOOGL": "Google", 
+                   "AMZN": "Amazon", "TSLA": "Tesla", "META": "Meta", "NVDA": "NVIDIA"}
+    if ticker in company_map:
+        news_docs = fetch_news(ticker, company_map[ticker])
+        docs.extend(news_docs)  # Add news to vector store
 
     embeddings = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2"

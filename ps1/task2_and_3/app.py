@@ -22,6 +22,9 @@ with gr.Blocks() as app:
     gr.Markdown("## 🔴 Live Price")
     t = gr.Textbox("AAPL")
     l = gr.Textbox()
-    gr.Button("Fetch").click(live, t, l)
+    def auto_refresh(ticker):
+        return live(ticker)
+    
+    app.load(auto_refresh, inputs=t, outputs=l, every=60)
 
 app.launch()

@@ -18,6 +18,4 @@ def classify_intent(query: str):
         return "explanation"
     if any(w in q for w in ["when", "trend", "up", "down"]):
         return "trend"
-    if any(w in q for w in ["plot", "chart", "show"]):
-        return "visual"
     return "general"
