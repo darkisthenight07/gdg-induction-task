@@ -4,8 +4,16 @@ from src.data_loader import load_stock_csv
 from src.model import train_prophet, make_forecast
 from src.visualization import plot_forecast
 from src.evaluation import rolling_validation, interval_coverage
+import logging
+logging.getLogger("cmdstanpy").setLevel(logging.WARNING)
+
 
 def run_pipeline(file, interval_width, show_components):
+    try:
+        df, log_transform = load_stock_csv(file)
+    except Exception as e:
+        return f"CSV error: {str(e)}", None, None
+
     df, log_transform = load_stock_csv(file)
 
     model = train_prophet(df, interval_width)

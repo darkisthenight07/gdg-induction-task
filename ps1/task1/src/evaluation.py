@@ -1,5 +1,6 @@
 import numpy as np
 from prophet import Prophet
+import pandas as pd
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 def rolling_validation(df, train_window=180, horizon=7):
@@ -37,16 +38,42 @@ def rolling_validation(df, train_window=180, horizon=7):
         "Evaluations": len(actuals)
     }
 
-def interval_coverage(df, model, horizon=7):
+import pandas as pd
+
+def interval_coverage(df, model):
     """
-    Measures how often true prices fall within prediction intervals.
+    Empirical coverage of Prophet prediction intervals
+    using in-sample predictions.
     """
-    future = model.make_future_dataframe(periods=horizon)
+
+    # Try to infer frequency, fall back safely
+    freq = pd.infer_freq(df["ds"])
+    if freq is None:
+        freq = "D"   # safe default
+
+    # In-sample forecast only
+    future = model.make_future_dataframe(
+        periods=0,
+        freq=freq
+    )
+
     forecast = model.predict(future)
 
-    y_true = np.exp(df["y"].iloc[-horizon:])
-    lower = forecast["yhat_lower"].iloc[-horizon:]
-    upper = forecast["yhat_upper"].iloc[-horizon:]
+    # Align forecast with actuals
+    merged = pd.merge(
+        df[["ds", "y"]],
+        forecast[["ds", "yhat_lower", "yhat_upper"]],
+        on="ds",
+        how="inner"
+    )
 
-    coverage = ((y_true >= lower) & (y_true <= upper)).mean()
-    return round(float(coverage), 3)
+    if merged.empty:
+        return float("nan")
+
+    coverage = (
+        (merged["y"] >= merged["yhat_lower"]) &
+        (merged["y"] <= merged["yhat_upper"])
+    ).mean()
+
+    return float(coverage)
+

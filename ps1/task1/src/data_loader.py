@@ -1,30 +1,44 @@
 import pandas as pd
 import numpy as np
 
-def load_stock_csv(file, log_transform=True):
-    """
-    Loads stock CSV and prepares data for Prophet.
-    Optionally applies log-transform to stabilize variance.
-    """
+def load_stock_csv(file):
     df = pd.read_csv(file)
 
-    required_cols = {"Date", "Close"}
-    if not required_cols.issubset(df.columns):
-        raise ValueError("CSV must contain Date and Close columns")
+    # Normalize column names
+    df.columns = [c.strip() for c in df.columns]
 
-    df["Date"] = pd.to_datetime(df["Date"])
-    df = df.sort_values("Date")
+    # Try to detect date column
+    date_candidates = ["Date", "date", "Datetime", "datetime"]
+    date_col = next((c for c in date_candidates if c in df.columns), None)
+    if date_col is None:
+        raise ValueError("No Date column found in CSV")
 
-    y = df["Close"].astype(float)
-    if log_transform:
-        y = np.log(y)
+    # Try to detect close/price column
+    price_candidates = ["Close", "close", "Adj Close", "Adj_Close", "price", "Price"]
+    price_col = next((c for c in price_candidates if c in df.columns), None)
+    if price_col is None:
+        raise ValueError("No price/Close column found in CSV")
 
-    prophet_df = pd.DataFrame({
-        "ds": df["Date"],
-        "y": y
-    }).dropna()
+    df = df[[date_col, price_col]].copy()
+    df.columns = ["ds", "y"]
 
-    if len(prophet_df) < 100:
-        raise ValueError("Not enough data (minimum 100 rows required)")
+    # Parse date
+    df["ds"] = pd.to_datetime(df["ds"], errors="coerce")
 
-    return prophet_df, log_transform
+    # Convert price safely
+    df["y"] = pd.to_numeric(df["y"], errors="coerce")
+
+    # Drop bad rows
+    df = df.dropna()
+
+    # Safety check
+    if len(df) < 30:
+        raise ValueError("Not enough valid rows after cleaning")
+
+    # Log transform if strictly positive
+    log_transform = False
+    if (df["y"] > 0).all():
+        df["y"] = np.log(df["y"])
+        log_transform = True
+
+    return df, log_transform
